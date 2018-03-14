@@ -41,10 +41,38 @@ const app = new Vue({
 + router.addRoutes(routes)
 + router.onReady(callback, [errorCallback])
 + router.onError(callback)
+
+`router.push(location, onComplete?, onAbort?)`（编程式）
 ```js
-//TODO: 补充router的实例方法使用用例
-this.$router.push('/log-out')
+//在history栈中增加一条url记录，可通过游览器的返回操作回到上一个url
+//用法一：字符串路径
+this.$router.push('/docs')
+//用法二：路径对象 path + query
+this.$router.push({path:'/docs'})
+// /docs?type="preview"
+this.$router.push({path:'/docs',query:{type:'preview'}})
+// /docs/123  
+this.$router.push({path:`/docs/${userId}`})
+//用法三：路径对象 name + params 
+//name是在配置路由时添加的命名路由，params只和name配合使用才有用
+this.$router.push({name:"docs",params:{userId:123}})
+//router-link的to功能同上 用来定义导航链接  （声明式）
+<router-link to="/docs" class="link">Document</router-link>
 ```
+
+`router.replace(location, onComplete?, onAbort?)`（编程式）
+```js
+//与.push()方法不同的是会替换掉当前的url，不会在history栈中增加记录
+this.$router.relace('/docs')
+//等同于 （声明式）
+<router-link to="/docs"replace>Document</router-link>
+```
+
+`router.go(n)`（编程式）
+n为正数前进n条history栈记录，为负数则为后退。
+超出栈的范围则会失败。
+
+
 ## Router 构造配置
 ```js
 mode: 'history',
@@ -72,6 +100,7 @@ children——嵌套路由
         { path: '/', component: project },
         // /workbench 匹配成功则组件project会被渲染在组件layout视图中的<router-view></router-view>
         { path: 'workbench', component: project },
+        //动态匹配路由  id = 123 路径为/group/123
         { path: 'group/:id', component: project },
         { path: 'group', component: group },
         { path: 'docs', component: docs },
@@ -83,8 +112,6 @@ children——嵌套路由
     ]
 }
 ```
-
-`待续`
 
 
 
