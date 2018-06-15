@@ -54,17 +54,17 @@
 
 ## scripts/config.js ##
 
-<pre>
+```js
 if (process.env.TARGET) {
   module.exports = genConfig(process.env.TARGET)
 } else {
   exports.getBuild = genConfig
   exports.getAllBuilds = () => Object.keys(builds).map(genConfig)
 }
-</pre>
+```
 
 genConfig 方法是设置一些配置，和webpack里的设置差不多，然后找到 web-full-dev
-<pre>
+```js
   'web-full-dev': {
     entry: resolve('web/entry-runtime-with-compiler.js'),
     dest: resolve('dist/vue.js'),
@@ -73,7 +73,7 @@ genConfig 方法是设置一些配置，和webpack里的设置差不多，然后
     alias: { he: './entity-decoder' },
     banner
   }
-</pre>
+```
 可以看到入口文件是'web/entry-runtime-with-compiler.js' 
 
 ## src/platforms/web/entry-runtime-with-compiler.js ##
@@ -91,7 +91,7 @@ genConfig 方法是设置一些配置，和webpack里的设置差不多，然后
 ## src/core/instance/index.js ##
 终于进入到最重要的方法，Vue的构造方法如下
 
-<pre>
+```js
 import { initMixin } from './init'
 import { stateMixin } from './state'
 import { renderMixin } from './render'
@@ -115,7 +115,7 @@ lifecycleMixin(Vue)
 renderMixin(Vue)
 
 export default Vue
-</pre>
+```
 - initMixin ：对于各种vue实例各种属性进行初始化
 - stateMixin ：Vue原型上绑定state相关的方法和属性，data、props等
 - eventsMixin ：Vue原型上绑定事件相关方法
@@ -124,19 +124,19 @@ export default Vue
 
 ## src/core/instance/init.js ##
 - **第一点：**initMixin 是Vue的一些初始化实例的方法，在还没有构造一个对象前是不会进入到这个方法内部，当通过new出一个对象后才会进入，原因如下：
-<pre>
+```js
  Vue.prototype._init = function (options?: Object) {
-</pre>
+```
 这里有一个`options?:object`的校验，刚开始即只是引入`<script src="../../dist/vue.js"></script>`这个文件，当` var vm = new Vue()`之后才进入_init方法内部。
 
 - **第二点：**_init方法中对于$options设置：
-<pre>
+```js
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
       )
-</pre>
+```
 mergeOptions这个方法是合并option,第一个参数是往$options塞入下面的参数
 
 ![](https://i.imgur.com/FxYtBge.png)
@@ -146,7 +146,7 @@ mergeOptions这个方法是合并option,第一个参数是往$options塞入下�
 ![](https://i.imgur.com/xopx8NG.png)
 
 - **第三点：**_init方法中其他初始化方法
-<pre>
+```js
     initLifecycle(vm)
     initEvents(vm)
     initRender(vm)
@@ -155,24 +155,24 @@ mergeOptions这个方法是合并option,第一个参数是往$options塞入下�
     initState(vm)
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
-</pre>
+```
 
 
 接下来将会一个个初始化方法说明，初次之外_init方法还有一些变量的初始化，比如_uid、_isVue、_name、_renderProxy的初始化
 
 - **第四点：**最后在_init方法中需要注意
-<pre>
+```js
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
-</pre>
+```
 调用$mount挂载根元素，这个方法就是之前提到的
 
 ## src/core/instance/state.js ##
 - **第一点：** stateMixin是对于Vue原型对象(Vue.prototype)加上$data、$props、$delete、$watch、$set属性。并且通过Object.defineProperty对$data、$props属性进行set和get
 
 - **第二点：**initState方法是在init.js中调用，即实例化之后才调用的，是个实例对象添加属性。
-<pre>
+```js
 export function initState(vm: Component) {
 // 首先在vm上初始化一个_watchers数组，缓存这个vm上的所有watcher
   vm._watchers = []
@@ -189,14 +189,14 @@ export function initState(vm: Component) {
     initWatch(vm, opts.watch)
   }
 }
-</pre>
+```
 对于实例对象进行相关属性的初始化，另外data、props因为需要双向绑定，在initData、initProps中都有一个proxy方法对这两个属性进行set和get的设置
 
 ## src/core/instance/events.js ##
 - **第一点：** eventsMixin是对于Vue原型对象(Vue.prototype)绑定一些事件方法，比如$on、$once、$off、$emit
 
 - **第二点：** initEvents是对于实例对象初始化事件
-<pre>
+```js
 export function initEvents(vm: Component) {
   vm._events = Object.create(null)
   vm._hasHookEvent = false
@@ -206,12 +206,12 @@ export function initEvents(vm: Component) {
     updateComponentListeners(vm, listeners)
   }
 }
-</pre>
+```
 创建_events一个空对象之后用来存放事件，_hasHookEvent是一个优化标记（可以暂时不理会），然后初始化父级事件。根据是否有父级监听事件，如果有则更新父级事件
 
 ## src/core/instance/lifecycle.js ##
 - **第一点：** lifecycleMixin是对Vue原型对象(Vue.prototype)绑定_update、$forceUpdate、$destroy三个生命周期方法。_update方法中通过调用__patch__方法更新虚拟dom；
-<pre>
+```js
     if (!prevVnode) {
       // initial render
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
@@ -219,11 +219,11 @@ export function initEvents(vm: Component) {
       // updates
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
-</pre>
+```
 $forceUpdate强制重新渲染实例本身和插入插槽内容的子组件；$destroy销毁一个实例，清理它与其它实例的连接，解绑它的全部指令及事件监听器，触发 beforeDestroy 和 destroyed 的钩子
 
 - **第二点：** initLifecycle是在_init方法中调用，是实例生命周期的初始化，其中会包括很多变量
-<pre>
+```js
 export function initLifecycle(vm: Component) {
   const options = vm.$options
 
@@ -249,7 +249,7 @@ export function initLifecycle(vm: Component) {
   vm._isDestroyed = false // 当前实例是否被销毁
   vm._isBeingDestroyed = false // 当前实例是否正在被销毁或者没销毁完全
 }
-</pre>
+```
 
 - **第三点：** callHook是在_init方法中调用，这个方法是直接调用钩子，调用形式如下
     `callHook(vm, 'beforeCreate')`
@@ -257,7 +257,7 @@ export function initLifecycle(vm: Component) {
 
 ## src/core/instance/render.js ##
 - **第一点：** renderMixin方法主要是给Vue原型对象绑定$nextTick、_render两个方法,其中_render方法代码如下：
-<pre>
+```js
   Vue.prototype._render = function (): VNode {
     ……
     // set parent vnode. this allows render functions to have access
@@ -287,11 +287,11 @@ export function initLifecycle(vm: Component) {
     ……
     return vnode
   }
-</pre>
+```
 在这个方法中主要是try……catch这里创建了vnode。 `vnode = render.call(vm._renderProxy, vm.$createElement)` 创建一个vnode并且返回，如果失败则返回一个空的vnode `vnode = createEmptyVNode()`
 
 - **第二点：** initRender是在_init方法中调用，进行实例渲染属性的绑定并且对一些属性的监听
-<pre>
+```js
 export function initRender(vm: Component) {
   ……
   vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
@@ -300,7 +300,7 @@ export function initRender(vm: Component) {
   vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
   ……
 }
-</pre>
+```
 这里着重关注一下createElement方法，传入vnode以及dom的属性创建真正dom节点。
 
 
@@ -311,15 +311,15 @@ export function initRender(vm: Component) {
 ## vue的渲染过程 ##
 
 - **第一步：** _init方法中
-<pre>
+```js
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
-</pre>
+```
 渲染入口，调用$mount方法开始
 
 - **第二步：**entry-runtime-with-compiler.js中的$mount方法，代码如下
-<pre>
+```js
 Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
@@ -362,7 +362,7 @@ Vue.prototype.$mount = function (
   }
   return mount.call(this, el, hydrating)
 }
-</pre>
+```
 可以从上面大致看出结构，template是可以从el传入，也可以是options中的template以及render方法三种方式传入，对应Vue官网如下：
 ![](https://i.imgur.com/4y1JmCB.png)
 ![](https://i.imgur.com/Rbhg4gl.png)
@@ -372,7 +372,7 @@ Vue.prototype.$mount = function (
 其中可以看到，通过el或者template的方式都需要调用compileToFunctions将字符串转换成方法，而render是不需要，这里可以看出render的性能应该会好一些，但是el和template我们使用较易理解。但是不管是哪一种最后都是生成render方法，然后再绑定到实例对象上。另外方法中的mount是从runtime/index.js中创建的。
 
 - **第三步：** 接下来就进入runtime/index.js看到mount方法调用mountComponent，然后找到这个方法是在lifecycle.js
-<pre>
+```js
 export function mountComponent(
   vm: Component,
   el: ?Element,
@@ -410,7 +410,7 @@ export function mountComponent(
   }
   return vm
 }
-</pre>
+```
 
 然后调用前一步调用的_render方法是在render.js中的_render方法中try……catch地方调用了第二步中生成的render方法。通过_render方法生成vnode，传入_update方法
 
