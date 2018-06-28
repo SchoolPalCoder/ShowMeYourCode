@@ -44,3 +44,4 @@
  EasyMock源码学习 | 孔倩倩 | 2018-03-28 | 文档书写完毕 | [源码研究之Vue-实例](https://schoolpalcoder.github.io/ShowMeYourCode/源码研究之Vue/vue实例)
  EasyMock源码学习 | 陈瑜 | 2018-3-13 | 打卡报到 | 待续
  Vue源码1——Vue构造函数 | 廖安然 | 2018-06-15 | 文档书写完毕 | [Vue源码1——Vue构造函数](https://schoolpalcoder.github.io/ShowMeYourCode/源码研究之Vue/Vue源码1——Vue构造函数)
+ vs插件研究 | 陈思源 | 2018年6月28日11:32:24 | 文档书写中 | 
